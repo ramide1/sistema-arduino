@@ -1,0 +1,32 @@
+services:
+  web:
+    build: .
+    tty: true
+    stdin_open: true
+    ports:
+      - "${APP_PORT}:3000/tcp"
+    environment:
+      SESSION_SECRET: ${SESSION_SECRET}
+      DB_HOST: "db"
+      DB_USER: "root"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      DB_TYPE: "mysql"
+      DB_PORT: "3306"
+      APP_PORT: "3000"
+      ACCESS_USERS: "${ACCESS_USERS}"
+      MASTER_KEYS: "${MASTER_KEYS}"
+      NODE_ENV: "${NODE_ENV}"
+    restart: unless-stopped
+    volumes:
+      - ./data/web:/usr/src/app
+
+  db:
+    image: mariadb
+    restart: unless-stopped
+    ports:
+      - "${DB_PORT}:3306/tcp"
+    volumes:
+      - ./data/db:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: "${DB_PASSWORD}"
