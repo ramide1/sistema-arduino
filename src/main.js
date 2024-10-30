@@ -8,7 +8,12 @@ require('dotenv').config();
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 const port = process.env.APP_PORT;
 const accessUsers = process.env.ACCESS_USERS.split(', ');
 const masterKeys = process.env.MASTER_KEYS.split(', ');
