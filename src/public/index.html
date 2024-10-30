@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Huella</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .modal-content {
+            padding: 20px;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <form method="POST" id="login-form">
+            <h5 class="modal-title">Iniciar Sesión</h5>
+            <br>
+            <!-- Campo de nombre de usuario -->
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre de Usuario</label>
+                <input type="text" class="form-control" name="username" placeholder="Nombre de usuario" required
+                    aria-label="Nombre de usuario">
+            </div>
+            <!-- Campo de contraseña -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" name="password" placeholder="Contraseña" required
+                    aria-label="Contraseña">
+            </div>
+            <!-- Botón de inicio de sesión -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary" aria-label="Iniciar sesión">
+                    Iniciar Sesión
+                </button>
+            </div>
+        </form>
+
+        <div id="main-content" class="card shadow p-4" style="display: none;">
+            <h1 class="text-center mb-4">Bienvenido, <span id="username"></span></h1>
+            <form method="POST" class="text-center mb-4" id="logout-form">
+                <button type="submit" id="logout-button" class="btn btn-danger" aria-label="Cerrar sesión">
+                    Cerrar sesión
+                </button>
+                <button class="btn btn-dark" id="forzar-cerradura">
+                    Forzar cerradura
+                </button>
+            </form>
+            <h2 class="text-center mb-4">Acciones disponibles</h2>
+            <div class="d-grid gap-2 col-6 mx-auto">
+                <!-- Botón para abrir el modal de agregar huella -->
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDataModal"
+                    aria-label="Agregar huella">
+                    Agregar Huella
+                </button>
+                <!-- Botón para abrir el modal de eliminar huella -->
+                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteDataModal"
+                    aria-label="Eliminar huella">
+                    Eliminar Huella
+                </button>
+            </div>
+            <h3 class="text-center mt-5">Datos recibidos de Cliente:</h3>
+            <div class="text-center">
+                <!-- Sección de datos recibidos -->
+                <div class="card mx-auto shadow p-4" style="max-width: 500px;">
+                    <div id="datos-cliente" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p>Esperando datos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para agregar datos -->
+        <div class="modal fade" id="addDataModal" tabindex="-1" aria-labelledby="addDataModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addDataModalLabel">Agregar Huella</h5>
+                        <button type="button" id="btn-close-agregar" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" id="add-data-form">
+                            <!-- Campo de nombre de huella -->
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre de huella</label>
+                                <input type="text" class="form-control" name="nombre" placeholder="Nombre de huella"
+                                    required aria-label="Nombre de huella">
+                            </div>
+                            <!-- Botón de agregar huella -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success" aria-label="Agregar huella">
+                                    Agregar Huella
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para eliminar datos -->
+        <div class="modal fade" id="deleteDataModal" tabindex="-1" aria-labelledby="deleteDataModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteDataModalLabel">Eliminar Huella</h5>
+                        <button type="button" id="btn-close-eliminar" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" id="delete-data-form">
+                            <!-- Campo de nombre de huella a eliminar -->
+                            <div class="mb-3">
+                                <label for="delete_nombre" class="form-label">Nombre de huella a eliminar</label>
+                                <input type="text" class="form-control" name="delete_nombre"
+                                    placeholder="Nombre de huella a eliminar" required
+                                    aria-label="Nombre de huella a eliminar">
+                            </div>
+                            <!-- Botón de eliminar huella -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-warning" aria-label="Eliminar huella">
+                                    Eliminar Huella
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/sweetalert2.js"></script>
+    <script src="js/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        socket.on('enviarAlerta', (data) => {
+            Swal.fire({
+                title: data.message,
+                icon: data.success ? 'success' : 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+
+        socket.on('loggedIn', (username) => {
+            // Mostrar contenedor principal
+            document.getElementById('main-content').style.display = 'block';
+            // Ocultar formulario de login
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('username').textContent = username;
+        });
+
+        socket.on('loggedOut', (username) => {
+            // Ocultar contenedor principal
+            document.getElementById('main-content').style.display = 'none';
+            // Mostrar formulario de login
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('username').textContent = '';
+        });
+
+        socket.on('added', (huella) => {
+            document.getElementById('btn-close-agregar').click();
+        });
+
+        socket.on('deleted', (huella) => {
+            document.getElementById('btn-close-eliminar').click();
+        });
+
+        socket.on('datosCliente', (data) => {
+            let textoHtml = `<ul class="list-group">`;
+            data.forEach(item => {
+                // Crear un objeto Date a partir de la fecha recibida
+                const actividadDate = new Date(item.actividad);
+                // Formatear la fecha en español
+                const fechaFormateada = actividadDate.toLocaleDateString('es-AR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false // Para usar el formato 24 horas
+                });
+                textoHtml += `
+                    <li class="list-group-item">
+                        <strong>Nombre:</strong> ${item.nombre}<br>
+                        <strong>Huella:</strong> ${item.id}<br>
+                        <strong>Actividad:</strong> ${fechaFormateada}
+                    </li>`;
+            });
+            textoHtml += `</ul>`;
+            document.getElementById('datos-cliente').innerHTML = textoHtml;
+        });
+
+        // Evento de envío del formulario de login
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            socket.emit('loginForm', Object.fromEntries((new FormData(e.target))));
+        });
+
+        // Evento de envío del formulario de logout
+        document.getElementById('logout-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            socket.emit('logoutForm');
+        });
+
+        // Evento de envío del formulario de agregar datos
+        document.getElementById('add-data-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            socket.emit('add', Object.fromEntries((new FormData(e.target))));
+        });
+
+        // Evento de envío del formulario de eliminar datos
+        document.getElementById('delete-data-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            socket.emit('delete', Object.fromEntries((new FormData(e.target))));
+        });
+
+        // Evento de envío del formulario de forzar cerradura
+        document.getElementById('forzar-cerradura').addEventListener('click', (e) => {
+            e.preventDefault();
+            socket.emit('forzarCerradura', true);
+        });
+    </script>
+</body>
+
+</html>
