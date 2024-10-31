@@ -36,10 +36,6 @@ const actualizarDatos = async () => {
     io.emit('datosCliente', datos);
 };
 
-const enviarHuella = (huella, agrego) => {
-    io.emit('enviarHuella', { huella, agrego });
-};
-
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
     const session = socket.request.session;
@@ -59,12 +55,10 @@ io.on('connection', (socket) => {
         console.log('Usuario desconectado');
     });
 
-    socket.on('loginForm', (data) => {
+    socket.on('login', (data) => {
         const { username, password } = data;
 
-        if (!username || !password) {
-            socket.emit('enviarAlerta', { success: false, message: 'Usuario y contraseña son requeridos' });
-        } else {
+        if (username && password) {
             if (accessUsers.includes(username) && masterKeys.includes(password)) {
                 session.username = username;
                 session.save();
@@ -74,36 +68,36 @@ io.on('connection', (socket) => {
             } else {
                 socket.emit('enviarAlerta', { success: false, message: 'Usuario o contraseña incorrectos' });
             }
+        } else {
+            socket.emit('enviarAlerta', { success: false, message: 'Usuario y contraseña son requeridos' });
         }
     });
 
-    socket.on('logoutForm', () => {
-        const username = session.username;
-        if (!username) {
-            socket.emit('enviarAlerta', { success: false, message: 'No se inició sesión' });
-        } else {
+    socket.on('logout', () => {
+        if (session.username) {
             session.destroy();
-            socket.emit('loggedOut', username);
+            socket.emit('loggedOut', true);
             socket.emit('enviarAlerta', { success: true, message: '¡Cierre de sesión exitoso!' });
+        } else {
+            socket.emit('enviarAlerta', { success: false, message: 'No se inició sesión' });
         }
     });
 
     socket.on('add', async (data) => {
         if (session.username) {
-            const { nombre } = data;
+            const nombre = data.nombre;
 
-            if (!nombre) {
-                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
-            } else {
+            if (nombre) {
                 try {
-                    const huella = await DatosCliente.create({ nombre });
-                    socket.emit('added', huella);
-                    socket.emit('enviarAlerta', { success: true, message: '¡Se guardó con éxito!' });
-                    enviarHuella(huella, true);
+                    await DatosCliente.create({ nombre });
+                    io.emit('added', true);
+                    io.emit('enviarHuella', { nombre: nombre, operacion: 0 });
                     actualizarDatos();
                 } catch (e) {
                     socket.emit('enviarAlerta', { success: false, message: 'Error al agregar datos' });
                 }
+            } else {
+                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
             }
         } else {
             socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
@@ -112,18 +106,16 @@ io.on('connection', (socket) => {
 
     socket.on('delete', async (data) => {
         if (session.username) {
-            const { delete_nombre } = data;
+            const nombre = data.nombre;
 
-            if (!delete_nombre) {
-                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
-            } else {
+            if (nombre) {
                 try {
-                    const huella = await DatosCliente.findOne({ where: { nombre: delete_nombre } });
+                    const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
                     if (huella) {
                         await huella.destroy();
-                        socket.emit('deleted', huella);
+                        io.emit('modified', true);
                         socket.emit('enviarAlerta', { success: true, message: '¡Se eliminó con éxito!' });
-                        enviarHuella(huella, false);
+                        io.emit('enviarHuella', { nombre: nombre, operacion: 1 });
                         actualizarDatos();
                     } else {
                         socket.emit('enviarAlerta', { success: false, message: 'No se encontró con ese nombre' });
@@ -131,9 +123,67 @@ io.on('connection', (socket) => {
                 } catch (e) {
                     socket.emit('enviarAlerta', { success: false, message: 'Error al eliminar datos' });
                 }
+            } else {
+                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
             }
         } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No tiene permisos para realizar esta operación' });
+            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+        }
+    });
+
+    socket.on('sobreescribir', async (data) => {
+        if (session.username) {
+            const nombre = data.nombre;
+
+            if (nombre) {
+                try {
+                    const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
+                    if (huella) {
+                        await huella.update({ nombre });
+                        io.emit('modified', true);
+                        socket.emit('enviarAlerta', { success: true, message: '¡Se sobreescribió con éxito!' });
+                        io.emit('enviarHuella', { nombre: nombre, operacion: 2 });
+                        actualizarDatos();
+                    } else {
+                        socket.emit('enviarAlerta', { success: false, message: 'No se encontró con ese nombre' });
+                    }
+                } catch (e) {
+                    socket.emit('enviarAlerta', { success: false, message: 'Error al sobreescribir datos' });
+                }
+            } else {
+                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
+            }
+        } else {
+            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+        }
+    });
+
+    socket.on('vaciar', async () => {
+        if (session.username) {
+            try {
+                await DatosCliente.destroy({ truncate: true, cascade: false })
+                io.emit('modified', true);
+                socket.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
+                actualizarDatos();
+            } catch (e) {
+                socket.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
+            }
+        } else {
+            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+        }
+    });
+
+    socket.on('forzarCerradura', () => {
+        io.emit('cerraduraForzada', true);
+    });
+
+    socket.on('confirmacionHuella', async (data) => {
+        const huella = await DatosCliente.findOne({ where: { nombre: data.nombre } });
+        if (huella) {
+            await huella.update({ huella: data.huella });
+            actualizarDatos();
+            io.emit('huellaConfirmada', true);
+            io.emit('enviarAlerta', { success: true, message: '¡Se guardó con éxito!' });
         }
     });
 });

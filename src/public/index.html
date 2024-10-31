@@ -51,26 +51,28 @@
         </form>
 
         <div id="main-content" class="card shadow p-4" style="display: none;">
-            <h1 class="text-center mb-4">Bienvenido, <span id="username"></span></h1>
-            <form method="POST" class="text-center mb-4" id="logout-form">
-                <button type="submit" id="logout-button" class="btn btn-danger" aria-label="Cerrar sesión">
-                    Cerrar sesión
-                </button>
-                <button class="btn btn-dark" id="forzar-cerradura">
-                    Forzar cerradura
-                </button>
-            </form>
-            <h2 class="text-center mb-4">Acciones disponibles</h2>
-            <div class="d-grid gap-2 col-6 mx-auto">
-                <!-- Botón para abrir el modal de agregar huella -->
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDataModal"
-                    aria-label="Agregar huella">
-                    Agregar Huella
-                </button>
-                <!-- Botón para abrir el modal de eliminar huella -->
-                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteDataModal"
-                    aria-label="Eliminar huella">
-                    Eliminar Huella
+            <div class="position-relative text-center mb-4">
+                <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
+            </div>
+            <div class="border rounded mx-auto" style="border-color: #cccccc; border-width: 2px; max-width: 415px;">
+                <h3 class="text-center mb-4">Acciones disponibles</h3>
+                <div class="text-center mb-4">
+                    <button class="btn btn-dark" id="forzar-cerradura" style="margin-right: 10px;">
+                        Forzar cerradura
+                    </button>
+                    <!-- Botón para abrir el modal de agregar huella -->
+                    <button type="button" class="btn btn-success"
+                        style="background-color: #0dd40d; border-color: #0dd40d;border-radius: 10px;margin-left: 10px;"
+                        data-bs-toggle="modal" data-bs-target="#addDataModal" aria-label="Agregar huella">
+                        Agregar Huella
+                    </button>
+                </div>
+            </div>
+            <div class="d-grid col-4 mx-auto" style="margin-top: 10px;">
+                <!-- Botón para abrir el modal de modificar huella -->
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
+                    aria-label="Modificar huella">
+                    Opciones Avanzadas
                 </button>
             </div>
             <h3 class="text-center mt-5">Datos recibidos de Cliente:</h3>
@@ -85,6 +87,9 @@
                     </div>
                 </div>
             </div>
+            <button type="submit" id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+                Cerrar sesión
+            </button>
         </div>
 
         <!-- Modal para agregar datos -->
@@ -116,32 +121,39 @@
             </div>
         </div>
 
-        <!-- Modal para eliminar datos -->
-        <div class="modal fade" id="deleteDataModal" tabindex="-1" aria-labelledby="deleteDataModalLabel"
+        <!-- Modal para modificar datos -->
+        <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteDataModalLabel">Eliminar Huella</h5>
-                        <button type="button" id="btn-close-eliminar" class="btn-close" data-bs-dismiss="modal"
+                        <h5 class="modal-title" id="editDataModalLabel">Modificar Huella</h5>
+                        <button type="button" id="btn-close-modificar" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" id="delete-data-form">
-                            <!-- Campo de nombre de huella a eliminar -->
-                            <div class="mb-3">
-                                <label for="delete_nombre" class="form-label">Nombre de huella a eliminar</label>
-                                <input type="text" class="form-control" name="delete_nombre"
-                                    placeholder="Nombre de huella a eliminar" required
-                                    aria-label="Nombre de huella a eliminar">
-                            </div>
-                            <!-- Botón de eliminar huella -->
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-warning" aria-label="Eliminar huella">
-                                    Eliminar Huella
-                                </button>
-                            </div>
-                        </form>
+                        <!-- Campo de nombre de huella -->
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre de huella</label>
+                            <input type="text" class="form-control" name="nombre" placeholder="Nombre de huella"
+                                id="nombreEdit" required aria-label="Nombre de huella">
+                        </div>
+                        <div class="mb-4">
+                            <button type="button" class="btn btn-success" style="margin-right: 50px;"
+                                aria-label="Sobreescribir huella" id="sobreescribirButton">
+                                Sobreescribir huella
+                            </button>
+                            <button type="button" class="btn btn-warning" style="margin-left: 50px;"
+                                aria-label="Eliminar huella" id="eliminarButton">
+                                Eliminar Huella
+                            </button>
+                        </div>
+                        <div class="d-grid" style="margin-top: 10px;">
+                            <button type="button" class="btn btn-danger"
+                                aria-label="Vaciar toda la database (todas las huellas)" id="vaciarButton">
+                                Vaciar toda la database (todas las huellas)
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -169,7 +181,7 @@
             document.getElementById('username').textContent = username;
         });
 
-        socket.on('loggedOut', (username) => {
+        socket.on('loggedOut', () => {
             // Ocultar contenedor principal
             document.getElementById('main-content').style.display = 'none';
             // Mostrar formulario de login
@@ -177,12 +189,35 @@
             document.getElementById('username').textContent = '';
         });
 
-        socket.on('added', (huella) => {
+        socket.on('added', () => {
             document.getElementById('btn-close-agregar').click();
+            const handleKeyPress = (e) => {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                }
+            };
+            Swal.fire({
+                title: 'Cargando...',
+                text: 'Esperando confirmacion',
+                icon: 'info',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                    document.addEventListener('keydown', handleKeyPress);
+                },
+                willClose: () => {
+                    document.removeEventListener('keydown', handleKeyPress);
+                }
+            });
         });
 
-        socket.on('deleted', (huella) => {
-            document.getElementById('btn-close-eliminar').click();
+        socket.on('huellaConfirmada', () => {
+            Swal.close();
+        });
+
+        socket.on('modified', (huella) => {
+            document.getElementById('btn-close-modificar').click();
         });
 
         socket.on('datosCliente', (data) => {
@@ -204,9 +239,30 @@
                 textoHtml += `
                     <li class="list-group-item">
                         <strong>Nombre:</strong> ${item.nombre}<br>
-                        <strong>Huella:</strong> ${item.id}<br>
+                        <strong>Huella:</strong> ${item.huella != null ? item.huella : 'Esperando confirmacion'}<br>
                         <strong>Actividad:</strong> ${fechaFormateada}
                     </li>`;
+                if (item.huella == null) {
+                    const handleKeyPress = (e) => {
+                        if (e.key === 'Escape') {
+                            e.preventDefault();
+                        }
+                    };
+                    Swal.fire({
+                        title: 'Cargando...',
+                        text: 'Esperando confirmacion',
+                        icon: 'info',
+                        allowEscapeKey: false,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                            document.addEventListener('keydown', handleKeyPress);
+                        },
+                        willClose: () => {
+                            document.removeEventListener('keydown', handleKeyPress);
+                        }
+                    });
+                }
             });
             textoHtml += `</ul>`;
             document.getElementById('datos-cliente').innerHTML = textoHtml;
@@ -215,13 +271,11 @@
         // Evento de envío del formulario de login
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            socket.emit('loginForm', Object.fromEntries((new FormData(e.target))));
+            socket.emit('login', Object.fromEntries((new FormData(e.target))));
         });
 
-        // Evento de envío del formulario de logout
-        document.getElementById('logout-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            socket.emit('logoutForm');
+        document.getElementById('logoutButton').addEventListener('click', () => {
+            socket.emit('logout');
         });
 
         // Evento de envío del formulario de agregar datos
@@ -231,14 +285,33 @@
         });
 
         // Evento de envío del formulario de eliminar datos
-        document.getElementById('delete-data-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            socket.emit('delete', Object.fromEntries((new FormData(e.target))));
+        document.getElementById('eliminarButton').addEventListener('click', () => {
+            socket.emit('delete', { nombre: document.getElementById('nombreEdit').value });
+        });
+
+        document.getElementById('sobreescribirButton').addEventListener('click', () => {
+            socket.emit('sobreescribir', { nombre: document.getElementById('nombreEdit').value });
+        });
+
+        document.getElementById('vaciarButton').addEventListener('click', () => {
+            Swal.fire({
+                title: "Estas seguro?",
+                text: "No se puede revertir esto!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                cancelButtonText: "No, cancelar!",
+                confirmButtonText: "Si, borrar todo!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    socket.emit('vaciar', { nombre: document.getElementById('nombreEdit').value });
+                }
+            });
         });
 
         // Evento de envío del formulario de forzar cerradura
-        document.getElementById('forzar-cerradura').addEventListener('click', (e) => {
-            e.preventDefault();
+        document.getElementById('forzar-cerradura').addEventListener('click', () => {
             socket.emit('forzarCerradura', true);
         });
     </script>
