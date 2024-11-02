@@ -6,28 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Huella</title>
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .container {
-            margin-top: 50px;
-        }
-
-        .modal-content {
-            padding: 20px;
-        }
-
-        .form-control {
-            margin-bottom: 15px;
-        }
-    </style>
+    <link href="css/index.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
-        <form method="POST" id="login-form">
+        <form method="POST" id="loginForm">
             <h5 class="modal-title">Iniciar Sesión</h5>
             <br>
             <!-- Campo de nombre de usuario -->
@@ -50,7 +34,7 @@
             </div>
         </form>
 
-        <div id="main-content" class="card shadow p-4" style="display: none;">
+        <div id="mainContent" class="card shadow p-4" style="display: none;">
             <div class="position-relative text-center mb-4">
                 <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
             </div>
@@ -79,7 +63,7 @@
             <div class="text-center">
                 <!-- Sección de datos recibidos -->
                 <div class="card mx-auto shadow p-4" style="max-width: 500px;">
-                    <div id="datos-cliente" class="text-center">
+                    <div id="datosCliente" class="text-center">
                         <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Cargando...</span>
                         </div>
@@ -98,11 +82,11 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addDataModalLabel">Agregar Huella</h5>
-                        <button type="button" id="btn-close-agregar" class="btn-close" data-bs-dismiss="modal"
+                        <button type="button" id="btnCloseAgregar" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <form method="POST" id="add-data-form">
+                        <form method="POST" id="addDataForm">
                             <!-- Campo de nombre de huella -->
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Nombre de huella</label>
@@ -121,30 +105,30 @@
             </div>
         </div>
 
-        <!-- Modal para modificar datos -->
+        <!-- Modal avanzado -->
         <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editDataModalLabel">Modificar Huella</h5>
-                        <button type="button" id="btn-close-modificar" class="btn-close" data-bs-dismiss="modal"
+                        <button type="button" id="btnCloseAvanzado" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <!-- Campo de nombre de huella -->
                         <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre de huella</label>
-                            <input type="text" class="form-control" name="nombre" placeholder="Nombre de huella"
-                                id="nombreEdit" required aria-label="Nombre de huella">
+                            <label class="form-label">Nombre de huella</label>
+                            <input type="text" class="form-control" placeholder="Nombre de huella" id="nombreEdit"
+                                aria-label="Nombre de huella">
                         </div>
                         <div class="mb-4">
-                            <button type="button" class="btn btn-success" style="margin-right: 50px;"
-                                aria-label="Sobreescribir huella" id="sobreescribirButton">
+                            <button type="button" class="btn btn-success" aria-label="Sobreescribir huella"
+                                id="editButton">
                                 Sobreescribir huella
                             </button>
-                            <button type="button" class="btn btn-warning" style="margin-left: 50px;"
-                                aria-label="Eliminar huella" id="eliminarButton">
+                            <button type="button" class="btn btn-warning" aria-label="Eliminar huella"
+                                id="eliminarButton">
                                 Eliminar Huella
                             </button>
                         </div>
@@ -162,159 +146,7 @@
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/sweetalert2.js"></script>
     <script src="js/socket.io.min.js"></script>
-    <script>
-        const socket = io();
-
-        socket.on('enviarAlerta', (data) => {
-            Swal.fire({
-                title: data.message,
-                icon: data.success ? 'success' : 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        });
-
-        socket.on('loggedIn', (username) => {
-            // Mostrar contenedor principal
-            document.getElementById('main-content').style.display = 'block';
-            // Ocultar formulario de login
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('username').textContent = username;
-        });
-
-        socket.on('loggedOut', () => {
-            // Ocultar contenedor principal
-            document.getElementById('main-content').style.display = 'none';
-            // Mostrar formulario de login
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('username').textContent = '';
-        });
-
-        socket.on('added', () => {
-            document.getElementById('btn-close-agregar').click();
-            const handleKeyPress = (e) => {
-                if (e.key === 'Escape') {
-                    e.preventDefault();
-                }
-            };
-            Swal.fire({
-                title: 'Cargando...',
-                text: 'Esperando confirmacion',
-                icon: 'info',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                    document.addEventListener('keydown', handleKeyPress);
-                },
-                willClose: () => {
-                    document.removeEventListener('keydown', handleKeyPress);
-                }
-            });
-        });
-
-        socket.on('huellaConfirmada', () => {
-            Swal.close();
-        });
-
-        socket.on('modified', (huella) => {
-            document.getElementById('btn-close-modificar').click();
-        });
-
-        socket.on('datosCliente', (data) => {
-            let textoHtml = `<ul class="list-group">`;
-            data.forEach(item => {
-                // Crear un objeto Date a partir de la fecha recibida
-                const actividadDate = new Date(item.actividad);
-                // Formatear la fecha en español
-                const fechaFormateada = actividadDate.toLocaleDateString('es-AR', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false // Para usar el formato 24 horas
-                });
-                textoHtml += `
-                    <li class="list-group-item">
-                        <strong>Nombre:</strong> ${item.nombre}<br>
-                        <strong>Huella:</strong> ${item.huella != null ? item.huella : 'Esperando confirmacion'}<br>
-                        <strong>Actividad:</strong> ${fechaFormateada}
-                    </li>`;
-                if (item.huella == null) {
-                    const handleKeyPress = (e) => {
-                        if (e.key === 'Escape') {
-                            e.preventDefault();
-                        }
-                    };
-                    Swal.fire({
-                        title: 'Cargando...',
-                        text: 'Esperando confirmacion',
-                        icon: 'info',
-                        allowEscapeKey: false,
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                            document.addEventListener('keydown', handleKeyPress);
-                        },
-                        willClose: () => {
-                            document.removeEventListener('keydown', handleKeyPress);
-                        }
-                    });
-                }
-            });
-            textoHtml += `</ul>`;
-            document.getElementById('datos-cliente').innerHTML = textoHtml;
-        });
-
-        // Evento de envío del formulario de login
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            socket.emit('login', Object.fromEntries((new FormData(e.target))));
-        });
-
-        document.getElementById('logoutButton').addEventListener('click', () => {
-            socket.emit('logout');
-        });
-
-        // Evento de envío del formulario de agregar datos
-        document.getElementById('add-data-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            socket.emit('add', Object.fromEntries((new FormData(e.target))));
-        });
-
-        // Evento de envío del formulario de eliminar datos
-        document.getElementById('eliminarButton').addEventListener('click', () => {
-            socket.emit('delete', { nombre: document.getElementById('nombreEdit').value });
-        });
-
-        document.getElementById('sobreescribirButton').addEventListener('click', () => {
-            socket.emit('sobreescribir', { nombre: document.getElementById('nombreEdit').value });
-        });
-
-        document.getElementById('vaciarButton').addEventListener('click', () => {
-            Swal.fire({
-                title: "Estas seguro?",
-                text: "No se puede revertir esto!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                cancelButtonText: "No, cancelar!",
-                confirmButtonText: "Si, borrar todo!"
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    socket.emit('vaciar', { nombre: document.getElementById('nombreEdit').value });
-                }
-            });
-        });
-
-        // Evento de envío del formulario de forzar cerradura
-        document.getElementById('forzar-cerradura').addEventListener('click', () => {
-            socket.emit('forzarCerradura', true);
-        });
-    </script>
+    <script src="js/index.js"></script>
 </body>
 
 </html>

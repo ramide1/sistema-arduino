@@ -1,0 +1,15 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.container {
+    margin-top: 50px;
+}
+
+.modal-content {
+    padding: 20px;
+}
+
+.form-control {
+    margin-bottom: 15px;
+}
