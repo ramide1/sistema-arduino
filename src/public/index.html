@@ -38,7 +38,7 @@
             <div class="position-relative text-center mb-4">
                 <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
             </div>
-            <div class="border rounded mx-auto" style="border-color: #cccccc; border-width: 2px; max-width: 415px;">
+            <div class="border rounded mx-auto">
                 <h3 class="text-center mb-4">Acciones disponibles</h3>
                 <div class="text-center mb-4">
                     <button class="btn btn-dark" id="forzar-cerradura" style="margin-right: 10px;">
@@ -63,21 +63,16 @@
             <div class="text-center">
                 <!-- Sección de datos recibidos -->
                 <div class="card mx-auto shadow p-4" style="max-width: 500px;">
-                    <div id="datosCliente" class="text-center">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Cargando...</span>
-                        </div>
-                        <p>Esperando datos...</p>
-                    </div>
+                    <div id="datosCliente" class="text-center"></div>
                 </div>
             </div>
-            <button type="submit" id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+            <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
                 Cerrar sesión
             </button>
         </div>
 
         <!-- Modal para agregar datos -->
-        <div class="modal fade" id="addDataModal" tabindex="-1" aria-labelledby="addDataModalLabel" aria-hidden="true">
+        <div class="modal fade" id="addDataModal" tabindex="-1" aria-labelledby="addDataModalLabel">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -106,8 +101,7 @@
         </div>
 
         <!-- Modal avanzado -->
-        <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -122,7 +116,7 @@
                             <input type="text" class="form-control" placeholder="Nombre de huella" id="nombreEdit"
                                 aria-label="Nombre de huella">
                         </div>
-                        <div class="mb-4">
+                        <div class="mb-4 d-flex justify-content-between">
                             <button type="button" class="btn btn-success" aria-label="Sobreescribir huella"
                                 id="editButton">
                                 Sobreescribir huella
@@ -136,6 +130,32 @@
                             <button type="button" class="btn btn-danger"
                                 aria-label="Vaciar toda la database (todas las huellas)" id="vaciarButton">
                                 Vaciar toda la database (todas las huellas)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal numero -->
+        <div class="modal fade" id="numberModal" tabindex="-1" aria-labelledby="numberModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="numberModalLabel">Número de Huella</h5>
+                        <button type="button" id="btnCloseNumber" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Campo de numero de huella -->
+                        <div class="mb-3">
+                            <label class="form-label">Número de huella</label>
+                            <input type="text" class="form-control" id="huellaNumberInput"
+                                placeholder="Número de huella" aria-label="Nombre de huella">
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-success" id="confirmNumberButton" aria-label="Continuar">
+                                Continuar
                             </button>
                         </div>
                     </div>

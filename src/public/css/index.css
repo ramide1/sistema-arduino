@@ -13,3 +13,9 @@ body {
 .form-control {
     margin-bottom: 15px;
 }
+
+#logoutButton {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+}

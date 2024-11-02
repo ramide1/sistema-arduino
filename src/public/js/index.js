@@ -66,6 +66,9 @@ socket.on('enviarHuella', (data) => {
             document.getElementById('btnCloseAgregar').click();
         } else {
             document.getElementById('btnCloseAvanzado').click();
+            if (data.operacion == 2) {
+                document.getElementById('btnCloseNumber').click();
+            }
         }
     }
 });
@@ -142,27 +145,29 @@ document.getElementById('eliminarButton').addEventListener('click', () => {
 
 document.getElementById('editButton').addEventListener('click', () => {
     if (loggedIn) {
-        Swal.fire({
-            title: 'Modificar Huella',
-            text: 'Por favor, ingresa el número de huella:',
-            icon: 'info',
-            input: 'text',
-            inputPlaceholder: 'Número de huella',
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            cancelButtonText: "No, cancelar!",
-            confirmButtonText: "Si, borrar todo!",
-            inputValidator: (value) => {
-                if (!value) {
-                    return 'Se necesita un número de huella';
+        const nombre = document.getElementById('nombreEdit').value;
+        if (!nombre) {
+            Swal.fire({
+                title: 'Nombre esta vacio',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        } else {
+            const modal = new bootstrap.Modal(document.getElementById('numberModal'));
+            modal.show();
+            document.getElementById('confirmNumberButton').addEventListener('click', () => {
+                const numero = document.getElementById('huellaNumberInput').value;
+                if (!numero) {
+                    Swal.fire({
+                        title: 'Número esta vacio',
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                } else {
+                    socket.emit('edit', { nombre: nombre, numero: numero });
                 }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                socket.emit('edit', { nombre: document.getElementById('nombreEdit').value, numero: result.value });
-            }
-        });
+            });
+        }
     }
 });
 

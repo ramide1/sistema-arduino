@@ -34,7 +34,7 @@ let estadoEdit = false;
 let estadoVaciar = false;
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
-    let session = socket.request.session;
+    const session = socket.request.session;
 
     if (session.username) {
         socket.emit('loggedIn', session.username);
@@ -59,7 +59,6 @@ io.on('connection', (socket) => {
             if (accessUsers.includes(username) && masterKeys.includes(password)) {
                 session.username = username;
                 session.save();
-                session = socket.request.session;
                 socket.emit('loggedIn', username);
                 socket.emit('enviarAlerta', { success: true, message: '¡Inicio de sesión exitoso!' });
             } else {
@@ -73,7 +72,6 @@ io.on('connection', (socket) => {
     socket.on('logout', () => {
         if (session.username) {
             session.destroy();
-            session = socket.request.session;
             socket.emit('loggedOut', true);
             socket.emit('enviarAlerta', { success: true, message: '¡Cierre de sesión exitoso!' });
         } else {
@@ -197,28 +195,46 @@ io.on('connection', (socket) => {
 
     socket.on('confirmacionHuella', async (data) => {
         if (data.operacion == 0) {
-            const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-            if (huella) {
+            if (data.error == 'sin errores') {
+                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
+                if (huella) {
+                    estadoAdd = false;
+                    await huella.update({ huella: data.huella });
+                    io.emit('esperarConfirmacion', false);
+                    io.emit('enviarAlerta', { success: true, message: '¡Se guardó con éxito!' });
+                }
+            } else {
                 estadoAdd = false;
-                await huella.update({ huella: data.huella });
                 io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: true, message: '¡Se guardó con éxito!' });
+                io.emit('enviarAlerta', { success: false, message: data.error });
             }
         } else if (data.operacion == 1) {
-            const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-            if (huella) {
+            if (data.error == 'sin errores') {
+                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
+                if (huella) {
+                    estadoDelete = false;
+                    await huella.destroy();
+                    io.emit('esperarConfirmacion', false);
+                    io.emit('enviarAlerta', { success: true, message: '¡Se eliminó con éxito!' });
+                }
+            } else {
                 estadoDelete = false;
-                await huella.destroy();
                 io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: true, message: '¡Se eliminó con éxito!' });
+                io.emit('enviarAlerta', { success: false, message: data.error });
             }
         } else if (data.operacion == 2) {
-            const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-            if (huella) {
+            if (data.error == 'sin errores') {
+                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
+                if (huella) {
+                    estadoEdit = false;
+                    await huella.update({ nombre: data.nombre });
+                    io.emit('esperarConfirmacion', false);
+                    io.emit('enviarAlerta', { success: true, message: '¡Se editó con éxito!' });
+                }
+            } else {
                 estadoEdit = false;
-                await huella.update({ nombre: data.nombre });
                 io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: true, message: '¡Se editó con éxito!' });
+                io.emit('enviarAlerta', { success: false, message: data.error });
             }
         }
     });
