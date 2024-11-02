@@ -36,6 +36,7 @@ const actualizarDatos = async () => {
     io.emit('datosCliente', datos);
 };
 
+let estado_add = false;
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
     const session = socket.request.session;
@@ -46,10 +47,6 @@ io.on('connection', (socket) => {
     }
 
     socket.on('error', console.error);
-
-    socket.on('message', (data) => {
-        console.log('recibido: %s', data);
-    });
 
     socket.on('disconnect', () => {
         console.log('Usuario desconectado');
@@ -89,10 +86,20 @@ io.on('connection', (socket) => {
 
             if (nombre) {
                 try {
-                    await DatosCliente.create({ nombre });
+                    const huella = await DatosCliente.create({ nombre });
                     io.emit('added', true);
                     io.emit('enviarHuella', { nombre: nombre, operacion: 0 });
                     actualizarDatos();
+                    estado_add = true;
+                    setTimeout(() => {
+                        if (estado_add) {
+                            estado_add = false;
+                            huella.destroy();
+                            actualizarDatos();
+                            io.emit('huellaConfirmada', true);
+                            io.emit('enviarAlerta', { success: false, message: '¡No hay respuesta!' });
+                        }
+                    }, 30000);
                 } catch (e) {
                     socket.emit('enviarAlerta', { success: false, message: 'Error al agregar datos' });
                 }
@@ -113,9 +120,9 @@ io.on('connection', (socket) => {
                     const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
                     if (huella) {
                         await huella.destroy();
-                        io.emit('modified', true);
+                        socket.emit('modified', true);
                         socket.emit('enviarAlerta', { success: true, message: '¡Se eliminó con éxito!' });
-                        io.emit('enviarHuella', { nombre: nombre, operacion: 1 });
+                        io.emit('enviarHuella', { nombre: nombre, operacion: 1, huella: huella.huella });
                         actualizarDatos();
                     } else {
                         socket.emit('enviarAlerta', { success: false, message: 'No se encontró con ese nombre' });
@@ -140,9 +147,8 @@ io.on('connection', (socket) => {
                     const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
                     if (huella) {
                         await huella.update({ nombre });
-                        io.emit('modified', true);
-                        socket.emit('enviarAlerta', { success: true, message: '¡Se sobreescribió con éxito!' });
-                        io.emit('enviarHuella', { nombre: nombre, operacion: 2 });
+                        socket.emit('modified', true);
+                        io.emit('enviarHuella', { nombre: nombre, operacion: 2, huella: huella.huella });
                         actualizarDatos();
                     } else {
                         socket.emit('enviarAlerta', { success: false, message: 'No se encontró con ese nombre' });
@@ -161,15 +167,23 @@ io.on('connection', (socket) => {
     socket.on('vaciar', async () => {
         if (session.username) {
             try {
-                await DatosCliente.destroy({ truncate: true, cascade: false })
-                io.emit('modified', true);
-                socket.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
-                actualizarDatos();
+                io.emit('vacioDatabase', true);
+                socket.emit('modified', true);
             } catch (e) {
                 socket.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
             }
         } else {
             socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+        }
+    })
+
+    socket.on('vaciadoExitoso', async () => {
+        try {
+            await DatosCliente.destroy({ truncate: true, cascade: false })
+            socket.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
+            actualizarDatos();
+        } catch (e) {
+            socket.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
         }
     });
 
@@ -180,6 +194,7 @@ io.on('connection', (socket) => {
     socket.on('confirmacionHuella', async (data) => {
         const huella = await DatosCliente.findOne({ where: { nombre: data.nombre } });
         if (huella) {
+            estado_add = false;
             await huella.update({ huella: data.huella });
             actualizarDatos();
             io.emit('huellaConfirmada', true);
