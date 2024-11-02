@@ -119,7 +119,7 @@ document.getElementById('logoutButton').addEventListener('click', () => {
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
             cancelButtonText: "No, cancelar!",
-            confirmButtonText: "Si, borrar todo!"
+            confirmButtonText: "Si, cerrar sesión!"
         }).then((result) => {
             if (result.isConfirmed) {
                 socket.emit('logout');
