@@ -180,10 +180,10 @@ io.on('connection', (socket) => {
     socket.on('vaciadoExitoso', async () => {
         try {
             await DatosCliente.destroy({ truncate: true, cascade: false })
-            socket.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
+            io.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
             actualizarDatos();
         } catch (e) {
-            socket.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
+            io.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
         }
     });
 
