@@ -38,14 +38,9 @@ io.on('connection', (socket) => {
 
     if (session.username) {
         socket.emit('loggedIn', session.username);
-        DatosCliente.findAll({
-            order: [['actividad', 'DESC']],
-            limit: 1
-        }).then(data => {
-            if ((data[0] && data[0].huella == null) || estadoAdd || estadoDelete || estadoEdit || estadoVaciar) {
-                io.emit('esperarConfirmacion', true);
-            }
-        });
+        if (estadoAdd || estadoDelete || estadoEdit || estadoVaciar) {
+            io.emit('esperarConfirmacion', true);
+        }
     }
 
     socket.on('disconnect', () => {
