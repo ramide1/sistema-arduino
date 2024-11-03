@@ -90,7 +90,7 @@ io.on('connection', (socket) => {
                     huella.destroy();
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 30000);
+            }, 60000);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -112,7 +112,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 30000);
+            }, 60000);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -134,7 +134,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 30000);
+            }, 60000);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -152,7 +152,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 30000);
+            }, 60000);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
