@@ -61,15 +61,12 @@ socket.on('waitConfirmation', (wait) => {
 socket.on('enviarHuella', (data) => {
     if (!loggedIn) return;
     if (data.operacion == 0) {
-        const modal = new bootstrap.Modal(document.getElementById('addDataModal'));
-        modal.hide();
+        bootstrap.Modal.getInstance(document.getElementById('addDataModal')).hide();
     } else {
         if (data.operacion == 2) {
-            const modal2 = new bootstrap.Modal(document.getElementById('numberModal'));
-            modal2.hide();
+            bootstrap.Modal.getInstance(document.getElementById('numberModal')).hide();
         }
-        const modal = new bootstrap.Modal(document.getElementById('editDataModal'));
-        modal.hide();
+        bootstrap.Modal.getInstance(document.getElementById('editDataModal')).hide();
     }
 });
 
