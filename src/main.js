@@ -14,9 +14,13 @@ const io = new Server(server, {
         methods: ['GET', 'POST']
     }
 });
-const port = process.env.APP_PORT;
-const accessUsers = process.env.ACCESS_USERS.split(', ');
-const masterKeys = process.env.MASTER_KEYS.split(', ');
+const port = process.env.APP_PORT || 3000;
+const accessUsers = process.env.ACCESS_USERS ? process.env.ACCESS_USERS.split(', ') : [];
+const masterKeys = process.env.MASTER_KEYS ? process.env.MASTER_KEYS.split(', ') : [];
+
+if (!process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET no está definido en el archivo .env');
+}
 
 const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET,
@@ -69,7 +73,7 @@ io.on('connection', (socket) => {
                 socket.emit('sendAlert', { success: true, message: '¡Inicio de sesión exitoso!' });
             }
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 
@@ -82,7 +86,7 @@ io.on('connection', (socket) => {
             socket.emit('loggedOut', true);
             socket.emit('sendAlert', { success: true, message: '¡Cierre de sesión exitoso!' });
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 
@@ -108,7 +112,7 @@ io.on('connection', (socket) => {
                 }
             }, 30000);
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 
@@ -136,7 +140,7 @@ io.on('connection', (socket) => {
                 }
             }, 30000);
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 
@@ -164,7 +168,7 @@ io.on('connection', (socket) => {
                 }
             }, 30000);
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 
@@ -184,7 +188,7 @@ io.on('connection', (socket) => {
                 }
             }, 30000);
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     })
 
@@ -212,7 +216,7 @@ io.on('connection', (socket) => {
                 throw 'No se encontró esa operación';
             }
         } catch (error) {
-            socket.emit('sendAlert', { success: false, message: error });
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
     });
 

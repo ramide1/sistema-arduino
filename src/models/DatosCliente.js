@@ -15,7 +15,6 @@ const DatosCliente = sequelize.define('datos_cliente', {
     huella: {
         type: DataTypes.INTEGER,
         unique: true,
-        // Despues cambiarlo
         allowNull: true
     },
     actividad: {
