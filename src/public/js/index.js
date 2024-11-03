@@ -72,8 +72,7 @@ socket.on('enviarHuella', (data) => {
 
 socket.on('vacioDatabase', () => {
     if (!loggedIn) return;
-    const modal = new bootstrap.Modal(document.getElementById('editDataModal'));
-    modal.hide();
+    bootstrap.Modal.getInstance(document.getElementById('editDataModal')).hide();
 });
 
 socket.on('matchData', (data) => {
