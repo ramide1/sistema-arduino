@@ -41,11 +41,11 @@
             <div class="border rounded mx-auto">
                 <h3 class="text-center mb-4">Acciones disponibles</h3>
                 <div class="text-center mb-4">
-                    <button class="btn btn-dark" id="forzar-cerradura" style="margin-right: 10px;">
+                    <button class="btn btn-dark" id="forzarCerradura" style="margin-right: 10px;">
                         Forzar cerradura
                     </button>
                     <!-- Botón para abrir el modal de agregar huella -->
-                    <button type="button" class="btn btn-success"
+                    <button class="btn btn-success"
                         style="background-color: #0dd40d; border-color: #0dd40d;border-radius: 10px;margin-left: 10px;"
                         data-bs-toggle="modal" data-bs-target="#addDataModal" aria-label="Agregar huella">
                         Agregar Huella
@@ -54,7 +54,7 @@
             </div>
             <div class="d-grid col-4 mx-auto" style="margin-top: 10px;">
                 <!-- Botón para abrir el modal de modificar huella -->
-                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
                     aria-label="Modificar huella">
                     Opciones Avanzadas
                 </button>
@@ -63,7 +63,7 @@
             <div class="text-center">
                 <!-- Sección de datos recibidos -->
                 <div class="card mx-auto shadow p-4" style="max-width: 500px;">
-                    <div id="datosCliente" class="text-center"></div>
+                    <div id="matchData" class="text-center"></div>
                 </div>
             </div>
             <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
@@ -77,7 +77,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addDataModalLabel">Agregar Huella</h5>
-                        <button type="button" id="btnCloseAgregar" class="btn-close" data-bs-dismiss="modal"
+                        <button id="btnCloseAgregar" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
@@ -106,7 +106,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editDataModalLabel">Modificar Huella</h5>
-                        <button type="button" id="btnCloseAvanzado" class="btn-close" data-bs-dismiss="modal"
+                        <button id="btnCloseAvanzado" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
@@ -117,18 +117,16 @@
                                 aria-label="Nombre de huella">
                         </div>
                         <div class="mb-4 d-flex justify-content-between">
-                            <button type="button" class="btn btn-success" aria-label="Sobreescribir huella"
-                                id="editButton">
+                            <button class="btn btn-success" aria-label="Sobreescribir huella" id="editButton">
                                 Sobreescribir huella
                             </button>
-                            <button type="button" class="btn btn-warning" aria-label="Eliminar huella"
-                                id="eliminarButton">
+                            <button class="btn btn-warning" aria-label="Eliminar huella" id="deleteButton">
                                 Eliminar Huella
                             </button>
                         </div>
                         <div class="d-grid" style="margin-top: 10px;">
-                            <button type="button" class="btn btn-danger"
-                                aria-label="Vaciar toda la database (todas las huellas)" id="vaciarButton">
+                            <button class="btn btn-danger" aria-label="Vaciar toda la database (todas las huellas)"
+                                id="vaciarButton">
                                 Vaciar toda la database (todas las huellas)
                             </button>
                         </div>
@@ -143,8 +141,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="numberModalLabel">Número de Huella</h5>
-                        <button type="button" id="btnCloseNumber" class="btn-close" data-bs-dismiss="modal"
-                            aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <!-- Campo de numero de huella -->

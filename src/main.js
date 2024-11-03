@@ -10,8 +10,8 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: '*',
+        methods: ['GET', 'POST']
     }
 });
 const port = process.env.APP_PORT;
@@ -28,18 +28,15 @@ app.use(express.static('src/public'));
 app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
 
-let estadoAdd = false;
-let estadoDelete = false;
-let estadoEdit = false;
-let estadoVaciar = false;
+let waiting = false;
 io.on('connection', (socket) => {
     console.log('Usuario conectado');
     const session = socket.request.session;
 
     if (session.username) {
         socket.emit('loggedIn', session.username);
-        if (estadoAdd || estadoDelete || estadoEdit || estadoVaciar) {
-            io.emit('esperarConfirmacion', true);
+        if (waiting) {
+            socket.emit('waitConfirmation', true);
         }
     }
 
@@ -47,198 +44,183 @@ io.on('connection', (socket) => {
         console.log('Usuario desconectado');
     });
 
-    socket.on('login', (data) => {
-        const { username, password } = data;
+    socket.on('error', (data) => {
+        console.log(data);
+    });
 
-        if (username && password) {
-            if (accessUsers.includes(username) && masterKeys.includes(password)) {
-                session.username = username;
-                session.save();
-                socket.emit('loggedIn', username);
-                socket.emit('enviarAlerta', { success: true, message: '¡Inicio de sesión exitoso!' });
-            } else {
-                socket.emit('enviarAlerta', { success: false, message: 'Usuario o contraseña incorrectos' });
+    socket.on('login', (data) => {
+        try {
+            if (session.username) {
+                throw 'Ya está logeado';
             }
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'Usuario y contraseña son requeridos' });
+            const { username, password } = data;
+            if (!(username && password)) {
+                throw 'Usuario y contraseña son requeridos'
+            }
+            if (!(accessUsers.includes(username) && masterKeys.includes(password))) {
+                throw 'Usuario o contraseña incorrectos'
+            }
+            session.username = username;
+            session.save();
+            socket.emit('loggedIn', username);
+            if (waiting) {
+                socket.emit('waitConfirmation', true);
+            } else {
+                socket.emit('sendAlert', { success: true, message: '¡Inicio de sesión exitoso!' });
+            }
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('logout', () => {
-        if (session.username) {
+        try {
+            if (!session.username) {
+                throw 'No está logeado';
+            }
             session.destroy();
             socket.emit('loggedOut', true);
-            socket.emit('enviarAlerta', { success: true, message: '¡Cierre de sesión exitoso!' });
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No se inició sesión' });
+            socket.emit('sendAlert', { success: true, message: '¡Cierre de sesión exitoso!' });
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('add', async (data) => {
-        if (session.username) {
-            const nombre = data.nombre;
-
-            if (nombre) {
-                try {
-                    const huella = await DatosCliente.create({ nombre });
-                    io.emit('enviarHuella', { nombre: nombre, operacion: 0 });
-                    io.emit('esperarConfirmacion', true);
-                    estadoAdd = true;
-                    setTimeout(() => {
-                        if (estadoAdd) {
-                            estadoAdd = false;
-                            huella.destroy();
-                            io.emit('esperarConfirmacion', false);
-                            io.emit('enviarAlerta', { success: false, message: '¡No hay respuesta!' });
-                        }
-                    }, 30000);
-                } catch (e) {
-                    socket.emit('enviarAlerta', { success: false, message: 'Error al agregar datos' });
-                }
-            } else {
-                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
+        try {
+            if (!session.username) {
+                throw 'No está logeado';
             }
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+            const nombre = data.nombre;
+            if (!nombre) {
+                throw 'Nombre es requerido';
+            }
+            const huella = await DatosCliente.create({ nombre });
+            io.emit('enviarHuella', { nombre: nombre, operacion: 0 });
+            waiting = true;
+            io.emit('waitConfirmation', true);
+            setTimeout(() => {
+                if (waiting) {
+                    waiting = false;
+                    io.emit('waitConfirmation', false);
+                    huella.destroy();
+                    throw '¡No hay respuesta!';
+                }
+            }, 30000);
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('delete', async (data) => {
-        if (session.username) {
-            const nombre = data.nombre;
-
-            if (nombre) {
-                try {
-                    const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
-                    if (huella) {
-                        io.emit('enviarHuella', { nombre: nombre, operacion: 1, huella: huella.huella });
-                        io.emit('esperarConfirmacion', true);
-                        estadoDelete = true;
-                        setTimeout(() => {
-                            if (estadoDelete) {
-                                estadoDelete = false;
-                                io.emit('esperarConfirmacion', false);
-                                io.emit('enviarAlerta', { success: false, message: '¡No hay respuesta!' });
-                            }
-                        }, 30000);
-                    } else {
-                        socket.emit('enviarAlerta', { success: false, message: 'No se encontró con ese nombre' });
-                    }
-                } catch (e) {
-                    socket.emit('enviarAlerta', { success: false, message: 'Error al eliminar datos' });
-                }
-            } else {
-                socket.emit('enviarAlerta', { success: false, message: 'Nombre es requerido' });
+        try {
+            if (!session.username) {
+                throw 'No está logeado';
             }
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+            const nombre = data.nombre;
+            if (!nombre) {
+                throw 'Nombre es requerido';
+            }
+            const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
+            if (!huella) {
+                throw 'No se encontró con ese nombre';
+            }
+            io.emit('enviarHuella', { nombre: nombre, operacion: 1, huella: huella.huella });
+            waiting = true;
+            io.emit('waitConfirmation', true);
+            setTimeout(() => {
+                if (waiting) {
+                    waiting = false;
+                    io.emit('waitConfirmation', false);
+                    throw '¡No hay respuesta!';
+                }
+            }, 30000);
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('edit', async (data) => {
-        if (session.username) {
-            const { nombre, numero } = data;
-
-            if (nombre && numero) {
-                try {
-                    const huella = await DatosCliente.findOne({ where: { huella: numero } });
-                    if (huella) {
-                        io.emit('enviarHuella', { nombre: nombre, operacion: 2, huella: huella.huella });
-                        io.emit('esperarConfirmacion', true);
-                        estadoEdit = true;
-                        setTimeout(() => {
-                            if (estadoEdit) {
-                                estadoEdit = false;
-                                io.emit('esperarConfirmacion', false);
-                                io.emit('enviarAlerta', { success: false, message: '¡No hay respuesta!' });
-                            }
-                        }, 30000);
-                    } else {
-                        socket.emit('enviarAlerta', { success: false, message: 'No se encontró' });
-                    }
-                } catch (e) {
-                    socket.emit('enviarAlerta', { success: false, message: 'Error al editar datos' });
-                }
-            } else {
-                socket.emit('enviarAlerta', { success: false, message: 'Nombre y Número son requeridos' });
+        try {
+            if (!session.username) {
+                throw 'No está logeado';
             }
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+            const { nombre, numero } = data;
+            if (!(nombre && numero)) {
+                throw 'Nombre y Número son requeridos';
+            }
+            const huella = await DatosCliente.findOne({ where: { huella: numero } });
+            if (!huella) {
+                throw 'No se encontró con ese número';
+            }
+            io.emit('enviarHuella', { nombre: nombre, operacion: 2, huella: huella.huella });
+            waiting = true;
+            io.emit('waitConfirmation', true);
+            setTimeout(() => {
+                if (waiting) {
+                    waiting = false;
+                    io.emit('waitConfirmation', false);
+                    throw '¡No hay respuesta!';
+                }
+            }, 30000);
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('vaciar', async () => {
-        if (session.username) {
-            try {
-                io.emit('vacioDatabase', true);
-                io.emit('esperarConfirmacion', true);
-                estadoVaciar = true;
-                setTimeout(() => {
-                    if (estadoVaciar) {
-                        estadoVaciar = false;
-                        io.emit('esperarConfirmacion', false);
-                        io.emit('enviarAlerta', { success: false, message: '¡No hay respuesta!' });
-                    }
-                }, 30000);
-            } catch (e) {
-                socket.emit('enviarAlerta', { success: false, message: 'Error al vaciar datos' });
+        try {
+            if (!session.username) {
+                throw 'No está logeado';
             }
-        } else {
-            socket.emit('enviarAlerta', { success: false, message: 'No está logeado' });
+            io.emit('vacioDatabase', true);
+            waiting = true;
+            io.emit('waitConfirmation', true);
+            setTimeout(() => {
+                if (waiting) {
+                    waiting = false;
+                    io.emit('waitConfirmation', false);
+                    throw '¡No hay respuesta!';
+                }
+            }, 30000);
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     })
 
     socket.on('confirmacionHuella', async (data) => {
-        if (data.operacion == 0) {
-            if (data.error == 'sin errores') {
-                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-                if (huella) {
-                    estadoAdd = false;
-                    await huella.update({ huella: data.huella });
-                    io.emit('esperarConfirmacion', false);
-                    io.emit('enviarAlerta', { success: true, message: '¡Se guardó con éxito!' });
-                }
-            } else {
-                estadoAdd = false;
-                io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: false, message: data.error });
+        try {
+            waiting = false;
+            io.emit('waitConfirmation', false);
+            if (data.error != 'sin errores') {
+                throw data.error;
             }
-        } else if (data.operacion == 1) {
-            if (data.error == 'sin errores') {
-                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-                if (huella) {
-                    estadoDelete = false;
-                    await huella.destroy();
-                    io.emit('esperarConfirmacion', false);
-                    io.emit('enviarAlerta', { success: true, message: '¡Se eliminó con éxito!' });
-                }
-            } else {
-                estadoDelete = false;
-                io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: false, message: data.error });
+            const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
+            if (!huella) {
+                throw 'No se encontró con ese número';
             }
-        } else if (data.operacion == 2) {
-            if (data.error == 'sin errores') {
-                const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
-                if (huella) {
-                    estadoEdit = false;
-                    await huella.update({ nombre: data.nombre });
-                    io.emit('esperarConfirmacion', false);
-                    io.emit('enviarAlerta', { success: true, message: '¡Se editó con éxito!' });
-                }
+            if (data.operacion == 0) {
+                await huella.update({ huella: data.huella });
+                io.emit('sendAlert', { success: true, message: '¡Se guardó con éxito!' });
+            } else if (data.operacion == 1) {
+                await huella.destroy();
+                io.emit('sendAlert', { success: true, message: '¡Se eliminó con éxito!' });
+            } else if (data.operacion == 2) {
+                await huella.update({ nombre: data.nombre });
+                io.emit('sendAlert', { success: true, message: '¡Se editó con éxito!' });
             } else {
-                estadoEdit = false;
-                io.emit('esperarConfirmacion', false);
-                io.emit('enviarAlerta', { success: false, message: data.error });
+                throw 'No se encontró esa operación';
             }
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error });
         }
     });
 
     socket.on('confirmacionVaciar', async () => {
-        estadoVaciar = false;
-        await DatosCliente.destroy({ truncate: true, cascade: false });
-        io.emit('esperarConfirmacion', false);
-        io.emit('enviarAlerta', { success: true, message: '¡Se vacio con éxito!' });
+        waiting = false;
+        io.emit('waitConfirmation', false);
+        await DatosCliente.destroy({ truncate: true });
+        io.emit('sendAlert', { success: true, message: '¡Se vacio con éxito!' });
     });
 
     socket.on('forzarCerradura', () => {
@@ -249,7 +231,7 @@ io.on('connection', (socket) => {
         const huella = await DatosCliente.findOne({ where: { huella: data.huella } });
         if (huella) {
             await huella.update({ actividad: (new Date()) });
-            io.emit('datosCliente', huella);
+            io.emit('matchData', huella);
         }
     });
 });
