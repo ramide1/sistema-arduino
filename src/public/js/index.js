@@ -61,15 +61,22 @@ socket.on('waitConfirmation', (wait) => {
 socket.on('enviarHuella', (data) => {
     if (!loggedIn) return;
     if (data.operacion == 0) {
-        document.getElementById('btnCloseAgregar').click();
+        const modal = new bootstrap.Modal(document.getElementById('addDataModal'));
+        modal.hide();
     } else {
-        document.getElementById('btnCloseAvanzado').click();
+        if (data.operacion == 2) {
+            const modal2 = new bootstrap.Modal(document.getElementById('numberModal'));
+            modal2.hide();
+        }
+        const modal = new bootstrap.Modal(document.getElementById('editDataModal'));
+        modal.hide();
     }
 });
 
 socket.on('vacioDatabase', () => {
     if (!loggedIn) return;
-    document.getElementById('btnCloseAvanzado').click();
+    const modal = new bootstrap.Modal(document.getElementById('editDataModal'));
+    modal.hide();
 });
 
 socket.on('matchData', (data) => {
