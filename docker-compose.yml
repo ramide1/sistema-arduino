@@ -17,7 +17,6 @@ services:
       APP_PORT: "3000"
       ACCESS_USERS: "${ACCESS_USERS}"
       MASTER_KEYS: "${MASTER_KEYS}"
-      NODE_ENV: "${NODE_ENV}"
     depends_on:
       - db
 
