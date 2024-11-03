@@ -141,7 +141,7 @@ document.getElementById('editButton').addEventListener('click', () => {
     const nombre = document.getElementById('nombreEdit').value;
     if (!nombre) {
         Swal.fire({
-            title: 'Nombre esta vacio',
+            title: 'Nombre es requerido',
             icon: 'error',
             confirmButtonText: 'Aceptar'
         });
@@ -152,7 +152,7 @@ document.getElementById('editButton').addEventListener('click', () => {
             const numero = document.getElementById('huellaNumberInput').value;
             if (!numero) {
                 Swal.fire({
-                    title: 'Número esta vacio',
+                    title: 'Número es requerido',
                     icon: 'error',
                     confirmButtonText: 'Aceptar'
                 });
@@ -166,14 +166,14 @@ document.getElementById('editButton').addEventListener('click', () => {
 document.getElementById('vaciarButton').addEventListener('click', () => {
     if (!loggedIn) return;
     Swal.fire({
-        title: "Estas seguro?",
-        text: "No se puede revertir esto!",
-        icon: "warning",
+        title: 'Estas seguro?',
+        text: 'No se puede revertir esto!',
+        icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        cancelButtonText: "No, cancelar!",
-        confirmButtonText: "Si, borrar todo!"
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'No, cancelar!',
+        confirmButtonText: 'Si, borrar todo!'
     }).then((result) => {
         if (result.isConfirmed) {
             socket.emit('vaciar', { nombre: document.getElementById('nombreEdit').value });
