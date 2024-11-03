@@ -104,7 +104,7 @@ io.on('connection', (socket) => {
                     waiting = false;
                     io.emit('waitConfirmation', false);
                     huella.destroy();
-                    throw '¡No hay respuesta!';
+                    io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
             }, 30000);
         } catch (error) {
@@ -132,7 +132,7 @@ io.on('connection', (socket) => {
                 if (waiting) {
                     waiting = false;
                     io.emit('waitConfirmation', false);
-                    throw '¡No hay respuesta!';
+                    io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
             }, 30000);
         } catch (error) {
@@ -160,7 +160,7 @@ io.on('connection', (socket) => {
                 if (waiting) {
                     waiting = false;
                     io.emit('waitConfirmation', false);
-                    throw '¡No hay respuesta!';
+                    io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
             }, 30000);
         } catch (error) {
@@ -180,7 +180,7 @@ io.on('connection', (socket) => {
                 if (waiting) {
                     waiting = false;
                     io.emit('waitConfirmation', false);
-                    throw '¡No hay respuesta!';
+                    io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
             }, 30000);
         } catch (error) {

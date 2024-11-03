@@ -67,6 +67,11 @@ socket.on('enviarHuella', (data) => {
     }
 });
 
+socket.on('vacioDatabase', () => {
+    if (!loggedIn) return;
+    document.getElementById('btnCloseAvanzado').click();
+});
+
 socket.on('matchData', (data) => {
     if (!loggedIn) return;
     // Crear un objeto Date a partir de la fecha recibida
