@@ -19,7 +19,7 @@ const port = process.env.APP_PORT || 3000;
 const accessUsers = process.env.ACCESS_USERS ? process.env.ACCESS_USERS.split(', ') : [];
 const masterKeys = process.env.MASTER_KEYS ? process.env.MASTER_KEYS.split(', ') : [];
 const waitTimeout = process.env.WAIT_TIMEOUT ? process.env.WAIT_TIMEOUT * 1000 : 60000;
-const cookieTimeout = process.env.COOKIE_TIMEOUT ? process.env.COOKIE_TIMEOUT * 1000 : 60000;
+const cookieTimeout = process.env.COOKIE_TIMEOUT ? process.env.COOKIE_TIMEOUT * 1000 : 600000;
 
 if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET no está definido en el archivo .env');
 
