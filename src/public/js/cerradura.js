@@ -84,13 +84,6 @@ socket.on('matchData', (data) => {
     `;
 });
 
-// Evento de envío del formulario de login
-document.getElementById('loginForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    if (loggedIn) return;
-    socket.emit('login', Object.fromEntries((new FormData(e.target))));
-});
-
 document.getElementById('logoutButton').addEventListener('click', () => {
     Swal.fire({
         title: "Cerrar Sesión",
