@@ -17,6 +17,7 @@ const io = new Server(server, {
 const port = process.env.APP_PORT || 3000;
 const accessUsers = process.env.ACCESS_USERS ? process.env.ACCESS_USERS.split(', ') : [];
 const masterKeys = process.env.MASTER_KEYS ? process.env.MASTER_KEYS.split(', ') : [];
+const waitTimeout = process.env.WAIT_TIMEOUT ? process.env.WAIT_TIMEOUT * 1000 : 60000;
 
 if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET no está definido en el archivo .env');
 
@@ -80,7 +81,7 @@ io.on('connection', (socket) => {
             const nombre = data.nombre;
             if (!nombre) throw 'Nombre es requerido';
             const huella = await DatosCliente.create({ nombre });
-            io.emit('enviarHuella', { nombre: nombre, operacion: 0 });
+            io.emit('enviarHuella', { operacion: 0 });
             currentData = huella;
             io.emit('waitConfirmation', true);
             setTimeout(() => {
@@ -90,7 +91,7 @@ io.on('connection', (socket) => {
                     huella.destroy();
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 60000);
+            }, waitTimeout);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -103,7 +104,7 @@ io.on('connection', (socket) => {
             if (!nombre) throw 'Nombre es requerido';
             const huella = await DatosCliente.findOne({ where: { nombre: nombre } });
             if (!huella) throw 'No se encontró con ese nombre';
-            io.emit('enviarHuella', { nombre: nombre, operacion: 1, huella: huella.huella });
+            io.emit('enviarHuella', { operacion: 1, huella: huella.huella });
             currentData = huella;
             io.emit('waitConfirmation', true);
             setTimeout(() => {
@@ -112,7 +113,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 60000);
+            }, waitTimeout);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -125,8 +126,11 @@ io.on('connection', (socket) => {
             if (!(nombre && numero)) throw 'Nombre y Número son requeridos';
             const huella = await DatosCliente.findOne({ where: { huella: numero } });
             if (!huella) throw 'No se encontró con ese número';
-            io.emit('enviarHuella', { nombre: nombre, operacion: 2, huella: huella.huella });
-            currentData = huella;
+            io.emit('enviarHuella', { operacion: 2, huella: huella.huella });
+            currentData = {
+                nombre: nombre,
+                huella: huella
+            };
             io.emit('waitConfirmation', true);
             setTimeout(() => {
                 if (currentData) {
@@ -134,7 +138,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 60000);
+            }, waitTimeout);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -152,7 +156,7 @@ io.on('connection', (socket) => {
                     io.emit('waitConfirmation', false);
                     io.emit('sendAlert', { success: false, message: '¡No hay respuesta!' });
                 }
-            }, 60000);
+            }, waitTimeout);
         } catch (error) {
             socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
         }
@@ -160,6 +164,7 @@ io.on('connection', (socket) => {
 
     socket.on('confirmacionHuella', async (data) => {
         try {
+            console.log(data);
             if (data.error != 'sin errores') {
                 if (data.operacion == 0) {
                     await currentData.destroy();
@@ -174,7 +179,7 @@ io.on('connection', (socket) => {
                 await currentData.destroy();
                 currentMessage = '¡Se eliminó con éxito!';
             } else if (data.operacion == 2) {
-                await currentData.update({ nombre: data.nombre });
+                await currentData.huella.update({ nombre: currentData.nombre });
                 currentMessage = '¡Se editó con éxito!';
             } else {
                 throw 'No se encontró esa operación';
@@ -197,7 +202,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('forzarCerradura', () => {
-        io.emit('cerraduraForzada', true);
+        try {
+            if (!session.username) throw 'No está logeado';
+            io.emit('cerraduraForzada', true);
+        } catch (error) {
+            socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
+        }
     });
 
     socket.on('matchHuella', async (data) => {
