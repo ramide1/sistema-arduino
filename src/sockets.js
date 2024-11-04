@@ -1,4 +1,4 @@
-const DatosCliente = require('./models/DatosCliente');
+const DatosCliente = require('./model/DatosCliente');
 let currentData = null;
 
 const socket = (io, accessUsers, masterKeys, waitTimeout) => {
