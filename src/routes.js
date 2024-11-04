@@ -11,24 +11,24 @@ router.get('/login', (req, res) => {
     if (req.session.username) {
         res.redirect('/dashboard');
     } else {
-        res.sendFile('./public/login.html');
+        res.sendFile(__dirname + '/template/login.html');
     }
 });
 
 router.get('/dashboard', isAuthenticated, (req, res) => {
-    res.sendFile('./public/dashboard.html');
+    res.sendFile(__dirname + '/template/dashboard.html');
 });
 
 router.get('/cerradura', isAuthenticated, (req, res) => {
-    res.sendFile('./public/cerradura.html');
+    res.sendFile(__dirname + '/template/cerradura.html');
 });
 
 router.get('/ambiental', isAuthenticated, (req, res) => {
-    res.sendFile('./public/ambiental.html');
+    res.sendFile(__dirname + '/template/ambiental.html');
 });
 
 router.get('/tomacorriente', isAuthenticated, (req, res) => {
-    res.sendFile('./public/tomacorriente.html');
+    res.sendFile(__dirname + '/template/tomacorriente.html');
 });
 
 module.exports = router;

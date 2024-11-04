@@ -32,6 +32,7 @@ const sessionMiddleware = session({
     }
 });
 
+app.use(express.static('src/public'));
 app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
 app.use('/', routes);
