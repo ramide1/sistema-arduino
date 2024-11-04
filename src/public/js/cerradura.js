@@ -1,6 +1,5 @@
 const socket = io();
 
-let loggedIn = false;
 let waiting = false;
 
 socket.on('sendAlert', (data) => {
@@ -12,27 +11,14 @@ socket.on('sendAlert', (data) => {
 });
 
 socket.on('loggedIn', (username) => {
-    if (loggedIn) return;
-    loggedIn = true;
-    // Mostrar contenedor principal
-    document.getElementById('mainContent').style.display = '';
-    // Ocultar formulario de login
-    document.getElementById('loginForm').style.display = 'none';
     document.getElementById('username').textContent = username;
 });
 
 socket.on('loggedOut', () => {
-    if (!loggedIn) return;
-    loggedIn = false;
-    // Ocultar contenedor principal
-    document.getElementById('mainContent').style.display = 'none';
-    // Mostrar formulario de login
-    document.getElementById('loginForm').style.display = '';
-    document.getElementById('username').textContent = '';
+    window.location.href = '/login';
 });
 
 socket.on('waitConfirmation', (wait) => {
-    if (!loggedIn) return;
     if (wait && !waiting) {
         waiting = true;
         const handleKeyPress = (e) => {
@@ -59,7 +45,6 @@ socket.on('waitConfirmation', (wait) => {
 });
 
 socket.on('enviarHuella', (data) => {
-    if (!loggedIn) return;
     if (data.operacion == 0) {
         bootstrap.Modal.getInstance(document.getElementById('addDataModal')).hide();
     } else {
@@ -71,12 +56,10 @@ socket.on('enviarHuella', (data) => {
 });
 
 socket.on('vacioDatabase', () => {
-    if (!loggedIn) return;
     bootstrap.Modal.getInstance(document.getElementById('editDataModal')).hide();
 });
 
 socket.on('matchData', (data) => {
-    if (!loggedIn) return;
     // Crear un objeto Date a partir de la fecha recibida
     const activityDate = new Date(data.actividad);
     // Formatear la fecha en español
@@ -109,7 +92,6 @@ document.getElementById('loginForm').addEventListener('submit', (e) => {
 });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
-    if (!loggedIn) return;
     Swal.fire({
         title: "Cerrar Sesión",
         text: "¿Estás seguro de que deseas cerrar sesión?",
@@ -129,18 +111,15 @@ document.getElementById('logoutButton').addEventListener('click', () => {
 // Evento de envío del formulario de agregar datos
 document.getElementById('addDataForm').addEventListener('submit', (e) => {
     e.preventDefault();
-    if (!loggedIn) return;
     socket.emit('add', Object.fromEntries((new FormData(e.target))));
 });
 
 // Evento de envío del formulario de eliminar datos
 document.getElementById('deleteButton').addEventListener('click', () => {
-    if (!loggedIn) return;
     socket.emit('delete', { nombre: document.getElementById('nombreEdit').value });
 });
 
 document.getElementById('editButton').addEventListener('click', () => {
-    if (!loggedIn) return;
     const nombre = document.getElementById('nombreEdit').value;
     if (!nombre) {
         Swal.fire({
@@ -167,7 +146,6 @@ document.getElementById('editButton').addEventListener('click', () => {
 });
 
 document.getElementById('vaciarButton').addEventListener('click', () => {
-    if (!loggedIn) return;
     Swal.fire({
         title: 'Estas seguro?',
         text: 'No se puede revertir esto!',
@@ -186,6 +164,5 @@ document.getElementById('vaciarButton').addEventListener('click', () => {
 
 // Evento de envío del formulario de forzar cerradura
 document.getElementById('forzarCerradura').addEventListener('click', () => {
-    if (!loggedIn) return;
     socket.emit('forzarCerradura', true);
 });

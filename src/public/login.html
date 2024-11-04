@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Iniciar Sesión</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <form method="POST" id="loginForm">
+      <h5 class="modal-title">Iniciar Sesión</h5>
+      <br>
+      <!-- Campo de nombre de usuario -->
+      <div class="mb-3">
+        <label for="username" class="form-label">Nombre de Usuario</label>
+        <input type="text" class="form-control" name="username" placeholder="Nombre de usuario" required
+          aria-label="Nombre de usuario">
+      </div>
+      <!-- Campo de contraseña -->
+      <div class="mb-3">
+        <label for="password" class="form-label">Contraseña</label>
+        <input type="password" class="form-control" name="password" placeholder="Contraseña" required
+          aria-label="Contraseña">
+      </div>
+      <!-- Botón de inicio de sesión -->
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary" aria-label="Iniciar sesión">
+          Iniciar Sesión
+        </button>
+      </div>
+    </form>
+  </div>
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/sweetalert2.js"></script>
+  <script src="js/socket.io.min.js"></script>
+  <script src="js/login.js"></script>
+</body>
+
+</html>

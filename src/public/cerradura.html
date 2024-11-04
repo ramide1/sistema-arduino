@@ -11,65 +11,40 @@
 
 <body>
     <div class="container">
-        <form method="POST" id="loginForm">
-            <h5 class="modal-title">Iniciar Sesión</h5>
-            <br>
-            <!-- Campo de nombre de usuario -->
-            <div class="mb-3">
-                <label for="username" class="form-label">Nombre de Usuario</label>
-                <input type="text" class="form-control" name="username" placeholder="Nombre de usuario" required
-                    aria-label="Nombre de usuario">
-            </div>
-            <!-- Campo de contraseña -->
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" name="password" placeholder="Contraseña" required
-                    aria-label="Contraseña">
-            </div>
-            <!-- Botón de inicio de sesión -->
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary" aria-label="Iniciar sesión">
-                    Iniciar Sesión
+        <div class="position-relative text-center mb-4">
+            <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
+        </div>
+        <div class="border rounded mx-auto">
+            <h3 class="text-center mb-4">Acciones disponibles</h3>
+            <div class="text-center mb-4">
+                <button class="btn btn-dark" id="forzarCerradura" style="margin-right: 10px;">
+                    Forzar cerradura
+                </button>
+                <!-- Botón para abrir el modal de agregar huella -->
+                <button class="btn btn-success"
+                    style="background-color: #0dd40d; border-color: #0dd40d;border-radius: 10px;margin-left: 10px;"
+                    data-bs-toggle="modal" data-bs-target="#addDataModal" aria-label="Agregar huella">
+                    Agregar Huella
                 </button>
             </div>
-        </form>
-
-        <div id="mainContent" class="card shadow p-4" style="display: none;">
-            <div class="position-relative text-center mb-4">
-                <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
-            </div>
-            <div class="border rounded mx-auto">
-                <h3 class="text-center mb-4">Acciones disponibles</h3>
-                <div class="text-center mb-4">
-                    <button class="btn btn-dark" id="forzarCerradura" style="margin-right: 10px;">
-                        Forzar cerradura
-                    </button>
-                    <!-- Botón para abrir el modal de agregar huella -->
-                    <button class="btn btn-success"
-                        style="background-color: #0dd40d; border-color: #0dd40d;border-radius: 10px;margin-left: 10px;"
-                        data-bs-toggle="modal" data-bs-target="#addDataModal" aria-label="Agregar huella">
-                        Agregar Huella
-                    </button>
-                </div>
-            </div>
-            <div class="d-grid col-4 mx-auto" style="margin-top: 10px;">
-                <!-- Botón para abrir el modal de modificar huella -->
-                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
-                    aria-label="Modificar huella">
-                    Opciones Avanzadas
-                </button>
-            </div>
-            <h3 class="text-center mt-5">Datos recibidos de Cliente:</h3>
-            <div class="text-center">
-                <!-- Sección de datos recibidos -->
-                <div class="card mx-auto shadow p-4" style="max-width: 500px;">
-                    <div id="matchData" class="text-center"></div>
-                </div>
-            </div>
-            <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
-                Cerrar sesión
+        </div>
+        <div class="d-grid col-4 mx-auto" style="margin-top: 10px;">
+            <!-- Botón para abrir el modal de modificar huella -->
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
+                aria-label="Modificar huella">
+                Opciones Avanzadas
             </button>
         </div>
+        <h3 class="text-center mt-5">Datos recibidos de Cliente:</h3>
+        <div class="text-center">
+            <!-- Sección de datos recibidos -->
+            <div class="card mx-auto shadow p-4" style="max-width: 500px;">
+                <div id="matchData" class="text-center"></div>
+            </div>
+        </div>
+        <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+            Cerrar sesión
+        </button>
 
         <!-- Modal para agregar datos -->
         <div class="modal fade" id="addDataModal" tabindex="-1" aria-labelledby="addDataModalLabel">
