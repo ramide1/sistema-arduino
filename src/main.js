@@ -164,7 +164,6 @@ io.on('connection', (socket) => {
 
     socket.on('confirmacionHuella', async (data) => {
         try {
-            console.log(data);
             if (data.error != 'sin errores') {
                 if (data.operacion == 0) {
                     await currentData.destroy();
