@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Seleccionar Modulo</title>
+  <link href="/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/animate.min.css" rel="stylesheet">
+  <link href="/css/index.css" rel="stylesheet">
+</head>
+
+<body class="animate__animated animate__fadeIn">
+  <div class="container">
+    <div class="position-relative text-center mb-4">
+      <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
+    </div>
+    <br>
+    <!-- Selección de Módulos -->
+    <div class="mb-3">
+      <label for="moduleSelect" class="form-label">Seleccionar Módulo</label>
+      <select class="form-select" id="moduleSelect" name="module" required>
+        <option value="" disabled selected>Seleccione un módulo</option>
+        <option value="cerradura">Cerradura</option>
+        <option value="ambiental">Ambiental</option>
+        <option value="tomacorriente">Tomacorriente</option>
+      </select>
+    </div>
+    <!-- Botón para seleccionar módulo -->
+    <div class="d-grid">
+      <button type="button" id="selectModule" class="btn btn-primary" aria-label="Seleccionar módulo">
+        Seleccionar Módulo
+      </button>
+    </div>
+    <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+      Cerrar sesión
+    </button>
+  </div>
+
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/sweetalert2.js"></script>
+  <script src="/js/socket.io.min.js"></script>
+  <script src="/js/dashboard.js"></script>
+</body>
+
+</html>

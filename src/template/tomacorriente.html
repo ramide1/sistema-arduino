@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Tomacorriente</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/animate.min.css" rel="stylesheet">
+  <link href="css/index.css" rel="stylesheet">
+</head>
+
+<body class="animate__animated animate__fadeIn">
+  <div class="container">
+    <div class="position-relative text-center mb-4">
+      <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
+    </div>
+    <h3 class="text-center mt-5">Datos Ambientales</h3>
+    <div class="row justify-content-center">
+      <div class="col-3 text-center">
+        <div class="card p-3">
+          <h5>PPM:</h5>
+          <div id="ppmValue">0</div>
+        </div>
+      </div>
+      <div class="col-3 text-center">
+        <div class="card p-3">
+          <h5>T°:</h5>
+          <div id="temperatureValue">0°C</div>
+        </div>
+      </div>
+      <div class="col-3 text-center">
+        <div class="card p-3">
+          <h5>H%:</h5>
+          <div id="humidityValue">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+      <div class="col-3 text-center">
+        <div class="d-flex align-items-center flex-column">
+          <label for="presenciaToggle" class="form-label" style="font-size: 1.5rem;">Presencia</label>
+          <div class="form-check form-switch" style="transform: scale(1.5);">
+            <input class="form-check-input" type="checkbox" id="presenciaToggle"
+              style="background-color: #0dd40d; width: 50px; height: 30px;">
+          </div>
+        </div>
+      </div>
+      <div class="col-3 text-center">
+        <div class="d-flex align-items-center flex-column">
+          <label for="gasesToggle" class="form-label" style="font-size: 1.5rem;">Gases</label>
+          <div class="form-check form-switch" style="transform: scale(1.5);">
+            <input class="form-check-input" type="checkbox" id="gasesToggle"
+              style="background-color: #0dd40d; width: 50px; height: 30px;">
+          </div>
+        </div>
+      </div>
+      <div class="col-3 text-center">
+        <div class="d-flex align-items-center flex-column">
+          <label for="fuegoToggle" class="form-label" style="font-size: 1.5rem;">Fuego</label>
+          <div class="form-check form-switch" style="transform: scale(1.5);">
+            <input class="form-check-input" type="checkbox" id="fuegoToggle"
+              style="background-color: #0dd40d; width: 50px; height: 30px;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row justify-content-center mt-4">
+      <div class="col-2 text-center">
+        <div class="d-flex align-items-center flex-column">
+          <h5 style="font-size: 1.5rem; margin-bottom: 10px;">R1</h5>
+          <div class="circle-indicator" id="indicatorR1"
+            style="width: 50px; height: 50px; border: 2px solid black; border-radius: 50%;"></div>
+        </div>
+      </div>
+      <div class="col-2 text-center">
+        <div class="d-flex align-items-center flex-column">
+          <h5 style="font-size: 1.5rem; margin-bottom: 10px;">R2</h5>
+          <div class="circle-indicator" id="indicatorR2"
+            style="width: 50px; height: 50px; border: 2px solid black; border-radius: 50%;"></div>
+        </div>
+      </div>
+    </div>
+    <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+      Cerrar sesión
+    </button>
+  </div>
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/sweetalert2.js"></script>
+  <script src="js/socket.io.min.js"></script>
+  <script src="js/tomacorriente.js"></script>
+</body>
+
+</html>

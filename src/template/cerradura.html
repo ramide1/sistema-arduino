@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cerradura</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/animate.min.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+</head>
+
+<body class="animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="position-relative text-center mb-4">
+            <h1 class="mb-0">Bienvenido, <span id="username"></span></h1>
+        </div>
+        <div class="border rounded mx-auto" style="max-width:23em;">
+            <h3 class="text-center mb-4">Acciones disponibles</h3>
+            <div class="text-center mb-4">
+                <button class="btn btn-dark" id="forzarCerradura" style="margin-right: 10px;">
+                    Forzar cerradura
+                </button>
+                <!-- Botón para abrir el modal de agregar huella -->
+                <button class="btn btn-success"
+                    style="background-color: #0dd40d; border-color: #0dd40d;border-radius: 10px;margin-left: 10px;"
+                    data-bs-toggle="modal" data-bs-target="#addDataModal" aria-label="Agregar huella">
+                    Agregar Huella
+                </button>
+            </div>
+        </div>
+        <div class="d-grid col-4 mx-auto" style="margin-top: 10px;">
+            <!-- Botón para abrir el modal de modificar huella -->
+            <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#editDataModal"
+                aria-label="Modificar huella">
+                Opciones Avanzadas
+            </button>
+        </div>
+        <h3 class="text-center mt-5">Datos recibidos de Cliente:</h3>
+        <div class="text-center">
+            <!-- Sección de datos recibidos -->
+            <div class="card mx-auto shadow p-4" style="max-width: 500px;">
+                <div id="matchData" class="text-center"></div>
+            </div>
+        </div>
+        <button id="logoutButton" class="btn btn-danger" aria-label="Cerrar sesión">
+            Cerrar sesión
+        </button>
+
+        <!-- Modal para agregar datos -->
+        <div class="modal fade" id="addDataModal" tabindex="-1" aria-labelledby="addDataModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addDataModalLabel">Agregar Huella</h5>
+                        <button class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" id="addDataForm">
+                            <!-- Campo de nombre de huella -->
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label">Nombre de huella</label>
+                                <input type="text" class="form-control" name="nombre" placeholder="Nombre de huella"
+                                    required aria-label="Nombre de huella">
+                            </div>
+                            <!-- Botón de agregar huella -->
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success" aria-label="Agregar huella">
+                                    Agregar Huella
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal avanzado -->
+        <div class="modal fade" id="editDataModal" tabindex="-1" aria-labelledby="editDataModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editDataModalLabel">Modificar Huella</h5>
+                        <button class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Campo de nombre de huella -->
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de huella</label>
+                            <input type="text" class="form-control" placeholder="Nombre de huella" id="nombreEdit"
+                                aria-label="Nombre de huella">
+                        </div>
+                        <div class="mb-4 d-flex justify-content-between">
+                            <button class="btn btn-success" aria-label="Sobreescribir huella" id="editButton">
+                                Sobreescribir huella
+                            </button>
+                            <button class="btn btn-warning" aria-label="Eliminar huella" id="deleteButton">
+                                Eliminar Huella
+                            </button>
+                        </div>
+                        <div class="d-grid" style="margin-top: 10px;">
+                            <button class="btn btn-danger" aria-label="Vaciar toda la database (todas las huellas)"
+                                id="vaciarButton">
+                                Vaciar toda la database (todas las huellas)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal numero -->
+        <div class="modal fade" id="numberModal" tabindex="-1" aria-labelledby="numberModalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="numberModalLabel">Número de Huella</h5>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Campo de numero de huella -->
+                        <div class="mb-3">
+                            <label class="form-label">Número de huella</label>
+                            <input type="number" step="1" min="1" max="232" class="form-control" id="huellaNumberInput"
+                                placeholder="Número de huella" aria-label="Nombre de huella">
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-success" id="confirmNumberButton" aria-label="Continuar">
+                                Continuar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sweetalert2.js"></script>
+    <script src="/js/socket.io.min.js"></script>
+    <script src="/js/cerradura.js"></script>
+</body>
+
+</html>
