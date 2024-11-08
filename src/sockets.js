@@ -195,6 +195,10 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
             io.emit('ambientalChanged', { type: 'switches', data: data });
         });
 
+        socket.on('TomacorrienteDatos', (data) => {
+            io.emit('tomacorrienteChanged', data);
+        });
+
         socket.on('checkboxToggle', (data) => {
             try {
                 if (!session.username) throw 'No está logeado';

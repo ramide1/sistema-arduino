@@ -51,6 +51,13 @@ socket.on('ambientalChanged', (data) => {
         document.getElementById('ppmValue').innerText = data.data.ppm;
         document.getElementById('temperatureValue').innerText = data.data.temperatura + '°C';
         document.getElementById('humidityValue').innerText = data.data.humedad + '%';
+        if (data.data.alertaGases) {
+            Swal.fire({
+                title: data.data.alertaFuego ? 'Alerta de Fuego' : 'Alerta de Gases',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        }
     } else if (data.type == 'switches') {
         if (data.data.r1) {
             document.getElementById('indicatorR1').classList.add('red-background');
