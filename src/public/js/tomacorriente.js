@@ -165,3 +165,13 @@ document.getElementById('horarioToggle2').addEventListener('click', (e) => {
         socket.emit('checkboxToggle', { type: 'habilitarHorario2', status: { status: e.target.checked, horaInicio: horadesde, horaFin: horahasta, minutoInicio: minutodesde, minutoFin: minutohasta } });
     }
 });
+
+['desde1', 'hasta1', 'desde2', 'hasta2'].forEach(id => {
+    const input = document.getElementById(id);
+    input.addEventListener('keydown', (e) => {
+        e.preventDefault();
+    });
+    input.addEventListener('click', (e) => {
+        e.target.showPicker();
+    });
+});
