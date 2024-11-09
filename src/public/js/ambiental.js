@@ -64,11 +64,23 @@ socket.on('ambientalChanged', (data) => {
         document.getElementById('indicatorR2').classList.remove('red-background');
     }
     if (data.alertaGases) {
-        Swal.fire({
-            title: data.alertaFuego ? 'Alerta de Fuego' : 'Alerta de Gases',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        });
+        if (data.alertaFuego) {
+            if (data.fuego) {
+                Swal.fire({
+                    title: 'Alerta de Fuego',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        } else {
+            if (data.gases) {
+                Swal.fire({
+                    title: 'Alerta de Gases',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        }
     }
 });
 

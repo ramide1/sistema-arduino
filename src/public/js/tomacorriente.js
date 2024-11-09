@@ -64,11 +64,35 @@ socket.on('habilitarHorario2', (data) => {
 
 socket.on('ambientalChanged', (data) => {
     if (data.alertaGases) {
-        Swal.fire({
-            title: data.alertaFuego ? 'Alerta de Fuego' : 'Alerta de Gases',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        });
+        if (data.alertaFuego) {
+            if (data.fuego) {
+                Swal.fire({
+                    title: 'Alerta de Fuego',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                if (document.getElementById('fuegoToggle1').checked) {
+                    socket.emit('checkboxToggle', { type: 'alertaGases1', status: 1 });
+                }
+                if (document.getElementById('fuegoToggle2').checked) {
+                    socket.emit('checkboxToggle', { type: 'alertaGases2', status: 1 });
+                }
+            }
+        } else {
+            if (data.gases) {
+                Swal.fire({
+                    title: 'Alerta de Gases',
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                if (document.getElementById('gasesToggle1').checked) {
+                    socket.emit('checkboxToggle', { type: 'alertaGases1', status: 0 });
+                }
+                if (document.getElementById('gasesToggle2').checked) {
+                    socket.emit('checkboxToggle', { type: 'alertaGases2', status: 0 });
+                }
+            }
+        }
     }
 });
 
