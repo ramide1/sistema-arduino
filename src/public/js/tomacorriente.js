@@ -83,12 +83,6 @@ socket.on('tomacorrienteChanged', (data) => {
     } else {
         document.getElementById('indicatorR2').classList.remove('red-background');
     }
-    document.getElementById('gasesToggle1').checked = data.gases1;
-    document.getElementById('fuegoToggle1').checked = data.fuego1;
-    document.getElementById('gasesToggle2').checked = data.gases2;
-    document.getElementById('fuegoToggle2').checked = data.fuego2;
-    document.getElementById('horarioToggle1').checked = data.habilitarHorario1;
-    document.getElementById('horarioToggle2').checked = data.habilitarHorario2;
 });
 
 document.getElementById('logoutButton').addEventListener('click', () => {
@@ -133,13 +127,17 @@ document.getElementById('fuegoToggle2').addEventListener('click', (e) => {
 });
 
 document.getElementById('horarioToggle1').addEventListener('click', (e) => {
-    const [horadesde, minutodesde] = document.getElementById('desde1').value.split(':');
-    const [horahasta, minutohasta] = document.getElementById('hasta1').value.split(':');
-    socket.emit('checkboxToggle', { type: 'habilitarHorario1', status: { status: e.target.checked, horaInicio: horadesde, horaFin: horahasta, minutoInicio: minutodesde, minutoFin: minutohasta } });
+    if (document.getElementById('desde1').value && document.getElementById('hasta1').value) {
+        const [horadesde, minutodesde] = document.getElementById('desde1').value.split(':');
+        const [horahasta, minutohasta] = document.getElementById('hasta1').value.split(':');
+        socket.emit('checkboxToggle', { type: 'habilitarHorario1', status: { status: e.target.checked, horaInicio: horadesde, horaFin: horahasta, minutoInicio: minutodesde, minutoFin: minutohasta } });
+    }
 });
 
 document.getElementById('horarioToggle2').addEventListener('click', (e) => {
-    const [horadesde, minutodesde] = document.getElementById('desde2').value.split(':');
-    const [horahasta, minutohasta] = document.getElementById('hasta2').value.split(':');
-    socket.emit('checkboxToggle', { type: 'habilitarHorario2', status: { status: e.target.checked, horaInicio: horadesde, horaFin: horahasta, minutoInicio: minutodesde, minutoFin: minutohasta } });
+    if (document.getElementById('desde2').value && document.getElementById('hasta2').value) {
+        const [horadesde, minutodesde] = document.getElementById('desde2').value.split(':');
+        const [horahasta, minutohasta] = document.getElementById('hasta2').value.split(':');
+        socket.emit('checkboxToggle', { type: 'habilitarHorario2', status: { status: e.target.checked, horaInicio: horadesde, horaFin: horahasta, minutoInicio: minutodesde, minutoFin: minutohasta } });
+    }
 });
