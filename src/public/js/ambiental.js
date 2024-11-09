@@ -47,31 +47,28 @@ socket.on('Fuego', (status) => {
 });
 
 socket.on('ambientalChanged', (data) => {
-    if (data.type == 'sensors') {
-        document.getElementById('ppmValue').innerText = data.data.ppm;
-        document.getElementById('temperatureValue').innerText = data.data.temperatura + '°C';
-        document.getElementById('humidityValue').innerText = data.data.humedad + '%';
-        if (data.data.alertaGases) {
-            Swal.fire({
-                title: data.data.alertaFuego ? 'Alerta de Fuego' : 'Alerta de Gases',
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        }
-    } else if (data.type == 'switches') {
-        if (data.data.r1) {
-            document.getElementById('indicatorR1').classList.add('red-background');
-        } else {
-            document.getElementById('indicatorR1').classList.remove('red-background');
-        }
-        if (data.data.r2) {
-            document.getElementById('indicatorR2').classList.add('red-background');
-        } else {
-            document.getElementById('indicatorR2').classList.remove('red-background');
-        }
-        document.getElementById('presenciaToggle').checked = data.data.presencia;
-        document.getElementById('gasesToggle').checked = data.data.gases;
-        document.getElementById('fuegoToggle').checked = data.data.fuego;
+    document.getElementById('ppmValue').innerText = data.ppm;
+    document.getElementById('temperatureValue').innerText = data.temperatura + '°C';
+    document.getElementById('humidityValue').innerText = data.humedad + '%';
+    document.getElementById('presenciaToggle').checked = data.presencia;
+    document.getElementById('gasesToggle').checked = data.gases;
+    document.getElementById('fuegoToggle').checked = data.fuego;
+    if (data.r1) {
+        document.getElementById('indicatorR1').classList.add('red-background');
+    } else {
+        document.getElementById('indicatorR1').classList.remove('red-background');
+    }
+    if (data.r2) {
+        document.getElementById('indicatorR2').classList.add('red-background');
+    } else {
+        document.getElementById('indicatorR2').classList.remove('red-background');
+    }
+    if (data.alertaGases) {
+        Swal.fire({
+            title: data.alertaFuego ? 'Alerta de Fuego' : 'Alerta de Gases',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
     }
 });
 

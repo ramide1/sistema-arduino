@@ -187,12 +187,8 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
             }
         });
 
-        socket.on('AmbientalSensores', (data) => {
-            io.emit('ambientalChanged', { type: 'sensors', data: data });
-        });
-
-        socket.on('AmbientalSwitches', (data) => {
-            io.emit('ambientalChanged', { type: 'switches', data: data });
+        socket.on('AmbientalDatos', (data) => {
+            io.emit('ambientalChanged', data);
         });
 
         socket.on('TomacorrienteDatos', (data) => {
