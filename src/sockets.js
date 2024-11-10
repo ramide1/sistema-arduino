@@ -1,4 +1,5 @@
 const DatosCliente = require('./model/DatosCliente');
+const Logs = require('./model/Logs');
 let currentFingerprint = null;
 
 const socket = (io, accessUsers, masterKeys, waitTimeout) => {
@@ -144,12 +145,17 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
                 if (data.operacion == 0) {
                     await currentFingerprint.update({ huella: data.huella });
                     currentMessage = '¡Se guardó con éxito!';
+                    Logs.create({ texto: 'Se creó la huella ' + data.huella });
                 } else if (data.operacion == 1) {
+                    const huella = currentFingerprint.huella;
                     await currentFingerprint.destroy();
                     currentMessage = '¡Se eliminó con éxito!';
+                    Logs.create({ texto: 'Se eliminó la huella ' + huella });
                 } else if (data.operacion == 2) {
+                    const huella = currentFingerprint.huella.huella;
                     await currentFingerprint.huella.update({ nombre: currentFingerprint.nombre });
                     currentMessage = '¡Se editó con éxito!';
+                    Logs.create({ texto: 'Se editó la huella ' + huella });
                 } else {
                     throw 'No se encontró esa operación';
                 }
@@ -168,12 +174,14 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
             currentFingerprint = null;
             io.emit('waitConfirmation', false);
             io.emit('sendAlert', { success: true, message: '¡Se vacio con éxito!' });
+            Logs.create({ texto: 'Se vació la database' });
         });
 
         socket.on('forzarCerradura', () => {
             try {
                 if (!session.username) throw 'No está logeado';
                 io.emit('cerraduraForzada', true);
+                Logs.create({ texto: 'Se forzó la cerradura' });
             } catch (error) {
                 socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
             }
@@ -184,6 +192,7 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
             if (huella) {
                 await huella.update({ actividad: (new Date()) });
                 io.emit('matchedFingerprint', huella);
+                Logs.create({ texto: 'Se detectó la huella ' + huella.huella });
             }
         });
 
@@ -201,6 +210,13 @@ const socket = (io, accessUsers, masterKeys, waitTimeout) => {
                 io.emit(data.type, data.status);
             } catch (error) {
                 socket.emit('sendAlert', { success: false, message: error.message || error || 'Error desconocido' });
+            }
+        });
+
+        socket.on('getLogs', async () => {
+            const logs = await Logs.findAll({ limit: 20, order: [['createdAt', 'DESC']] });
+            if (logs) {
+                socket.emit('obtainedLogs', logs);
             }
         });
     });

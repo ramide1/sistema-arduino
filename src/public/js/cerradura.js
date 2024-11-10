@@ -161,3 +161,30 @@ document.getElementById('vaciarButton').addEventListener('click', () => {
 document.getElementById('forzarCerradura').addEventListener('click', () => {
     socket.emit('forzarCerradura', true);
 });
+
+document.querySelector('button[data-bs-target="#logsModal"]').addEventListener('click', () => {
+    socket.emit('getLogs', true);
+});
+
+socket.on('obtainedLogs', (logs) => {
+    const logsList = document.getElementById('logsList');
+    logsList.innerHTML = '';
+    logs.forEach(log => {
+        const logItem = document.createElement('li');
+        logItem.classList.add('list-group-item');
+        const createdDate = new Date(log.createdAt);
+        // Formatear la fecha en español
+        const formatedDate = createdDate.toLocaleDateString('es-AR', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false // Para usar el formato 24 horas
+        });
+        logItem.textContent = formatedDate + '-' + log.texto;
+        logsList.appendChild(logItem);
+    });
+});
